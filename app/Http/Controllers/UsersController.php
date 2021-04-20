@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
+use App\User; // 追加
+
+use App\Micropost;
+
 class UsersController extends Controller
 {
     public function index()
@@ -79,6 +83,64 @@ class UsersController extends Controller
         return view('users.followers', [
             'user' => $user,
             'users' => $followers,
+        ]);
+    }
+    
+    //フォローと同じやり方
+    public function favorite($micropostId)
+    {
+        // すでにフォローしているかの確認
+        //お気に入り済みか = 指定した投稿のidがお気に入り済みかどうか判断する
+        $exist = $this->favorite($micropostId);
+
+        //if(お気に入り済みか)
+        if ($exist && !$its_me) {
+            // お気に入り済みの場合はお気に入り登録を解除する
+            $this->favorites()->attach($micropostId);
+            return true;
+        } else {
+            // お気に入り済みであれば何もしない
+            return false;
+        }
+    }
+    //アンフォローと同じやり方 User.phpから参照
+    public function unfavorite($micropostId)
+    {
+        // すでにフォローしているかの確認
+        //お気に入り済みか = 指定した投稿のidがお気に入り済みかどうか判断する
+        $exist = $this->favorite($micropostId);
+
+        //if(お気に入り済みか)
+        if ($exist && !$its_me) {
+            // お気に入り済みの場合はお気に入り登録を解除する
+            $this->favorites()->detach($micropostId);
+            return true;
+        } else {
+            // お気に入り済みであれば何もしない
+            return false;
+        }
+        
+    }
+    
+    //avoritesアクションはどのページを表示させるためのものか？
+    //お気に入り一覧を表示する/favoritesアクション
+    //favoritesボタンをタップした後のページを表示
+    public function favorites($id)
+    {
+        // idの値でユーザを検索して取得
+        $user = User::findOrFail($id);
+        
+        // 関係するモデルの件数をロード
+        $user->loadRelationshipCounts();
+
+        // ユーザのお気に入り一覧を取得
+        $favorites = $user->favorites()->paginate(10);
+        
+
+        // お気に入り一覧ビューでそれらを表示
+        return view('users.favorite', [
+            'user' => $user,
+            'users' => $favorites,
         ]);
     }
 }

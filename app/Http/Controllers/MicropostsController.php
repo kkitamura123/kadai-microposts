@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
+use App\Micropost;
+
 class MicropostsController extends Controller
 {
     public function index()
@@ -21,9 +23,6 @@ class MicropostsController extends Controller
             ];
         }
 
-        // Welcomeビューでそれらを表示
-        return view('welcome', $data);
-    }
         // Welcomeビューでそれらを表示
         return view('welcome', $data);
     }
